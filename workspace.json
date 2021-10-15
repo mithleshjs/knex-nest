@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "projects": {
+    "example": "apps/example",
+    "knex-nest": "libs/knex-nest"
+  },
+  "cli": {
+    "defaultCollection": "@nrwl/nest"
+  },
+  "defaultProject": "example"
+}

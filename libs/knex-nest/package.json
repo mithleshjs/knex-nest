@@ -1,0 +1,33 @@
+{
+  "name": "@mithleshjs/knex-nest",
+  "version": "1.0.0",
+  "author": "Mithlesh Jasrotia",
+  "license": "MIT",
+  "description": "Pagination included Knex module for Nest",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mithleshjs/knex-nest"
+  },
+  "bugs": {
+    "url": "https://github.com/mithleshjs/knex-nest/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://github.com/mithleshjs/knex-nest",
+  "keywords": [
+    "knex",
+    "nest",
+    "knexjs",
+    "nestjs",
+    "sql",
+    "query",
+    "db",
+    "database",
+    "pagination"
+  ],
+  "peerDependencies": {
+    "@nestjs/common": "^7.0.0",
+    "knex": "^0.95.11"
+  }
+}

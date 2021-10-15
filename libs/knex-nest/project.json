@@ -1,0 +1,34 @@
+{
+  "root": "libs/knex-nest",
+  "sourceRoot": "libs/knex-nest/src",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/knex-nest/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/knex-nest"],
+      "options": {
+        "jestConfig": "libs/knex-nest/jest.config.js",
+        "passWithNoTests": true
+      }
+    },
+    "build": {
+      "executor": "@nrwl/node:package",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/knex-nest",
+        "tsConfig": "libs/knex-nest/tsconfig.lib.json",
+        "packageJson": "libs/knex-nest/package.json",
+        "main": "libs/knex-nest/src/index.ts",
+        "assets": ["README.md", "LICENSE.md"]
+      }
+    }
+  },
+  "tags": []
+}
