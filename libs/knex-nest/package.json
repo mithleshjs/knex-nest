@@ -1,6 +1,6 @@
 {
   "name": "@mithleshjs/knex-nest",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Mithlesh Jasrotia",
   "license": "MIT",
   "description": "Pagination included Knex module for Nest",
