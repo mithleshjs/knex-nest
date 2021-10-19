@@ -1,6 +1,6 @@
 {
   "name": "@mithleshjs/knex-nest",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "Mithlesh Jasrotia",
   "license": "MIT",
   "description": "Pagination included Knex module for Nest",
@@ -27,7 +27,7 @@
     "pagination"
   ],
   "peerDependencies": {
-    "@nestjs/common": "^7.0.0",
-    "knex": "^0.95.11"
+    "@nestjs/common": ">=7.0.0",
+    "knex": ">=0.95.11"
   }
 }
