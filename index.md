@@ -1,3 +1,8 @@
+<style>
+  .site-footer {
+    display: none;
+  }
+</style>
 <p align="center">
   <a href="https://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo.svg" width="200" alt="Nest Logo" /></a>
 </p>
