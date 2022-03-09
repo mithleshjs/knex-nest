@@ -19,14 +19,20 @@
       }
     },
     "build": {
-      "executor": "@nrwl/node:package",
+      "executor": "@nrwl/js:tsc",
       "outputs": ["{options.outputPath}"],
+      "optimization": true,
+      "extractLicenses": true,
+      "inspect": false,
       "options": {
         "outputPath": "dist/libs/knex-nest",
         "tsConfig": "libs/knex-nest/tsconfig.lib.json",
         "packageJson": "libs/knex-nest/package.json",
         "main": "libs/knex-nest/src/index.ts",
-        "assets": ["README.md", "LICENSE.md"]
+        "assets": [
+          { "glob": "README.md", "input": "./", "output": "./" },
+          { "glob": "LICENSE.md", "input": "./", "output": "./" }
+        ]
       }
     }
   },

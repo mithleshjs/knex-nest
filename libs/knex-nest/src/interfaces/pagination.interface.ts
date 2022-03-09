@@ -1,39 +1,22 @@
-export interface IPaginateParams {
+import { Knex } from 'knex';
+
+export interface IOffsetPaginateParams {
+  query: Knex.QueryBuilder;
   perPage: number;
-  currentPage: number;
-  isLengthAware?: boolean;
+  goToPage: number;
   dataKey?: string;
 }
 
-export interface IWithPagination<Data, TParams = IPaginateParams> {
-  data: Data[];
-  pagination: IPagination<TParams>;
-}
-
-export type IPagination<TParams> = TParams extends { isLengthAware: true }
-  ? ILengthAwarePagination
-  : IBasePagination;
-
-export interface IBasePagination {
-  currentPage: number;
+export interface ICursorPaginateParams {
+  query: Knex.QueryBuilder;
+  cursor: ICursor;
   perPage: number;
-  from: number;
-  to: number;
+  dataKey?: string;
 }
 
-export interface ILengthAwarePagination extends IBasePagination {
-  total: number;
-  lastPage: number;
-}
-
-declare module 'knex' {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace Knex {
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    export interface QueryBuilder<TRecord extends {} = any, TResult = any> {
-      paginate<TParams extends IPaginateParams = IPaginateParams>(
-        params: Readonly<TParams>
-      ): Knex.QueryBuilder<TRecord, IWithPagination<TRecord, TParams>>;
-    }
-  }
+export interface ICursor {
+  key: string;
+  value?: string | number;
+  order: 'asc' | 'desc';
+  direction: 'next' | 'prev';
 }

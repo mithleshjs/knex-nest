@@ -1,35 +1,46 @@
-import { Module, Global, DynamicModule, Provider } from '@nestjs/common';
-import { KnexService } from './knex.service';
+import { Global, DynamicModule, Provider } from '@nestjs/common';
 import {
   IKnexModuleAsyncOptions,
   IKnexModuleOptions,
   IKnexModuleOptionsFactory,
 } from './interfaces';
-import { connectionFactory } from './knex.provider';
-import { KNEX_CONNECTION, KNEX_OPTIONS } from './constants';
+import { KnexService } from './knex.service';
+import { getConnectionToken, getOptionToken } from './knex.util';
 
 @Global()
-@Module({
-  providers: [KnexService, connectionFactory],
-  exports: [KNEX_CONNECTION],
-})
 export class KnexModule {
   public static register(options: IKnexModuleOptions): DynamicModule {
     return {
       module: KnexModule,
       providers: [
+        KnexService,
         {
-          provide: KNEX_OPTIONS,
-          useValue: options,
+          provide: getConnectionToken(options.configTag),
+          useFactory: async (knexService) => {
+            return knexService.getKnex(options.config);
+          },
+          inject: [KnexService],
         },
       ],
+      exports: [getConnectionToken(options.configTag)],
     };
   }
 
   public static registerAsync(options: IKnexModuleAsyncOptions): DynamicModule {
     return {
       module: KnexModule,
-      providers: [...this.createProviders(options)],
+      providers: [
+        ...this.createProviders(options),
+        KnexService,
+        {
+          provide: getConnectionToken(options.configTag),
+          useFactory: async (knexService, options: IKnexModuleOptions) => {
+            return knexService.getKnex(options.config);
+          },
+          inject: [KnexService, getOptionToken(options.configTag)],
+        },
+      ],
+      exports: [getConnectionToken(options.configTag)],
     };
   }
 
@@ -52,14 +63,14 @@ export class KnexModule {
   ): Provider {
     if (options.useFactory) {
       return {
-        provide: KNEX_OPTIONS,
+        provide: getOptionToken(options.configTag),
         useFactory: options.useFactory,
         inject: options.inject || [],
       };
     }
 
     return {
-      provide: KNEX_OPTIONS,
+      provide: getOptionToken(options.configTag),
       useFactory: async (optionsFactory: IKnexModuleOptionsFactory) =>
         await optionsFactory.createKnexModuleOptions(),
       inject: [options.useExisting || options.useClass],

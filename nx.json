@@ -19,7 +19,8 @@
           "lint",
           "test",
           "e2e"
-        ]
+        ],
+        "parallel": 1
       }
     }
   },
@@ -31,5 +32,8 @@
       }
     ]
   },
-  "projects": {}
+  "cli": {
+    "defaultCollection": "@nrwl/nest"
+  },
+  "defaultProject": "example"
 }

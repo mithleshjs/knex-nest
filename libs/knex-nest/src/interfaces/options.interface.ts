@@ -3,7 +3,7 @@ import { Knex } from 'knex';
 
 export interface IKnexModuleOptions {
   config: Knex.Config;
-  enablePaginator?: boolean;
+  configTag?: string;
 }
 
 export interface IKnexModuleOptionsFactory {
@@ -12,6 +12,7 @@ export interface IKnexModuleOptionsFactory {
 
 export interface IKnexModuleAsyncOptions
   extends Pick<ModuleMetadata, 'imports'> {
+  configTag?: string;
   inject?: any[];
   useClass?: Type<IKnexModuleOptionsFactory>;
   useExisting?: Type<IKnexModuleOptionsFactory>;

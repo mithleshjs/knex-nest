@@ -1,72 +1,123 @@
-export function knexPaginate({
-  perPage = 10,
-  currentPage = 1,
-  isLengthAware = false,
-  dataKey = 'data',
-}) {
-  if (isNaN(perPage)) {
-    throw new Error('Paginate error: perPage must be a number.');
+import { ICursorPaginateParams, IOffsetPaginateParams } from './interfaces';
+export class KnexPagination {
+  public static async offsetPaginate(params: IOffsetPaginateParams) {
+    const { query, perPage = 10, goToPage = 1, dataKey = 'data' } = params;
+
+    const offset = (goToPage - 1) * perPage;
+    const result = await query.offset(offset).limit(perPage);
+    const lengthMeta = await KnexPagination.getLengthMeta(query, perPage);
+    return {
+      [dataKey]: result,
+      pagination: {
+        from: offset + 1,
+        to: offset + result.length,
+        per_page: perPage,
+        current_page: goToPage,
+        ...lengthMeta,
+      },
+    };
   }
 
-  if (isNaN(currentPage)) {
-    throw new Error('Paginate error: currentPage must be a number.');
-  }
-
-  if (typeof isLengthAware !== 'boolean') {
-    throw new Error('Paginate error: isLengthAware must be a boolean.');
-  }
-
-  const shouldFetchTotals = isLengthAware;
-  let pagination = {};
-  let countQuery = null;
-
-  if (currentPage < 1) {
-    currentPage = 1;
-  }
-
-  const offset = (currentPage - 1) * perPage;
-  const limit = perPage;
-
-  const postProcessResponse =
-    typeof this.client.config.postProcessResponse === 'function'
-      ? this.client.config.postProcessResponse
-      : function (key) {
-          return key;
-        };
-
-  if (shouldFetchTotals) {
-    countQuery = new this.constructor(this.client)
+  private static async getLengthMeta(query, perPage) {
+    const count = await query
+      .clone()
+      .clear('select')
+      .clear('order')
+      .clear('offset')
+      .clear('limit')
       .count('* as total')
-      .from(this.clone().offset(0).clearOrder().as('count__query__'))
-      .first()
-      .debug(this._debug);
+      .first();
+    // Postgres returns a string for count, so we parse it
+    const total = parseInt(count.total);
+    const totalPages = Math.ceil(total / perPage);
+    return {
+      first_page: 1,
+      last_page: totalPages,
+      total,
+    };
   }
 
-  // This will paginate the data itself
-  this.offset(offset).limit(limit);
-
-  return this.client.transaction(async (trx) => {
-    const result = await this.transacting(trx);
-
-    if (shouldFetchTotals) {
-      const countResult = await countQuery.transacting(trx);
-      const total = +(countResult.TOTAL || countResult.total);
-
-      pagination = {
-        total,
-        lastPage: Math.ceil(total / perPage),
-      };
+  public static async cursorPaginate(params: ICursorPaginateParams) {
+    const { query, cursor, perPage = 10, dataKey = 'data' } = params;
+    const cursorMeta = {
+      hasNextPage: false,
+      next_cursor: null,
+      hasPrevPage: false,
+      prev_cursor: null,
+    };
+    const whereOperator = this.getWhereOperator(cursor.order, cursor.direction);
+    // if cursor is null, we need to get the first/last page
+    if (cursor.value) {
+      query.where(cursor.key, whereOperator, cursor.value);
+    }
+    // if direction is prev, we need to reverse the order
+    const order =
+      cursor.direction === 'next'
+        ? cursor.order
+        : cursor.order === 'asc'
+        ? 'desc'
+        : 'asc';
+    // add +1 to the limit to determine if there is a next/prev page
+    const result = await query.orderBy(cursor.key, order).limit(perPage + 1);
+    // if direction is prev, we need to reverse the result
+    if (order !== cursor.order) {
+      result.reverse();
+    }
+    // if we have more than perPage results, we have a next/prev page
+    if (result.length > perPage) {
+      if (cursor.direction === 'next') {
+        result.pop();
+        cursorMeta.hasNextPage = true;
+        if (cursor.value) {
+          cursorMeta.hasPrevPage = true;
+          cursorMeta.prev_cursor = result[0][cursor.key];
+        }
+        cursorMeta.next_cursor = result[result.length - 1][cursor.key];
+      } else {
+        result.shift();
+        cursorMeta.hasPrevPage = true;
+        if (cursor.value) {
+          cursorMeta.hasNextPage = true;
+          cursorMeta.next_cursor = result[result.length - 1][cursor.key];
+        }
+        cursorMeta.prev_cursor = result[0][cursor.key];
+      }
+    } else if (result.length > 0 && result.length <= perPage) {
+      if (cursor.direction === 'next') {
+        if (cursor.value) {
+          cursorMeta.hasPrevPage = true;
+          cursorMeta.prev_cursor = result[0][cursor.key];
+        }
+      } else {
+        if (cursor.value) {
+          cursorMeta.hasNextPage = true;
+          cursorMeta.next_cursor = result[result.length - 1][cursor.key];
+        }
+      }
     }
 
-    // Add pagination data to paginator object
-    pagination = postProcessResponse({
-      ...pagination,
-      currentPage,
-      perPage,
-      from: offset + 1,
-      to: offset + result.length,
-    });
+    return {
+      [dataKey]: result,
+      pagination: {
+        cursor: cursorMeta,
+        per_page: perPage,
+      },
+    };
+  }
 
-    return { [dataKey]: result, pagination };
-  });
+  private static getWhereOperator(order, direction) {
+    if (order === 'asc') {
+      if (direction === 'next') {
+        return '>';
+      } else {
+        return '<';
+      }
+    } else {
+      if (direction === 'prev') {
+        return '>';
+      } else {
+        return '<';
+      }
+    }
+  }
 }

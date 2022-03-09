@@ -1,17 +1,27 @@
-import { Controller, Get } from '@nestjs/common';
-import { InjectKnex } from '@mithleshjs/knex-nest';
-import { Knex } from 'knex';
+import { Body, Controller, Get } from '@nestjs/common';
+import { AppService } from './app.service';
 
 @Controller()
 export class AppController {
-  constructor(@InjectKnex() readonly knex: Knex) {}
+  constructor(private appService: AppService) {}
 
-  @Get()
-  getUsers() {
-    return this.knex('users').select('id', 'name').paginate({
-      currentPage: 1,
-      perPage: 3,
-      isLengthAware: false,
-    });
+  @Get('users')
+  getUsers(@Body() params) {
+    return this.appService.getUsers();
+  }
+
+  @Get('artists/offset')
+  getArtists(@Body() params) {
+    return this.appService.getArtistsByOffset(params.perPage, params.goToPage);
+  }
+
+  @Get('artists/cursor')
+  getArtistsByCursor(@Body() params) {
+    return this.appService.getArtistsByCursor(
+      params.cursor,
+      params.direction,
+      params.order,
+      params.perPage
+    );
   }
 }

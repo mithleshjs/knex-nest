@@ -1,6 +1,6 @@
 {
   "name": "@mithleshjs/knex-nest",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "author": "Mithlesh Jasrotia",
   "license": "MIT",
   "description": "Pagination included Knex module for Nest",
@@ -24,7 +24,10 @@
     "query",
     "db",
     "database",
-    "pagination"
+    "pagination",
+    "offset pagination",
+    "cursor pagination",
+    "knex pagination"
   ],
   "peerDependencies": {
     "@nestjs/common": ">=7.0.0",
