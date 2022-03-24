@@ -1,9 +1,9 @@
 {
   "name": "@mithleshjs/knex-nest",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "author": "Mithlesh Jasrotia",
   "license": "MIT",
-  "description": "Pagination included Knex module for Nest",
+  "description": "Pagination included KnexJS module for NestJS",
   "repository": {
     "type": "git",
     "url": "https://github.com/mithleshjs/knex-nest"
@@ -16,18 +16,12 @@
   },
   "homepage": "https://github.com/mithleshjs/knex-nest",
   "keywords": [
-    "knex",
-    "nest",
     "knexjs",
     "nestjs",
-    "sql",
-    "query",
-    "db",
     "database",
     "pagination",
-    "offset pagination",
-    "cursor pagination",
-    "knex pagination"
+    "offset",
+    "cursor"
   ],
   "peerDependencies": {
     "@nestjs/common": ">=7.0.0",

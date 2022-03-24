@@ -1,11 +1,16 @@
+import { Knex } from 'knex';
 import { ICursorPaginateParams, IOffsetPaginateParams } from './interfaces';
 export class KnexPagination {
   public static async offsetPaginate(params: IOffsetPaginateParams) {
     const { query, perPage = 10, goToPage = 1, dataKey = 'data' } = params;
-
     const offset = (goToPage - 1) * perPage;
     const result = await query.offset(offset).limit(perPage);
-    const lengthMeta = await KnexPagination.getLengthMeta(query, perPage);
+    const count = params.count ?? -1;
+    const lengthMeta = await KnexPagination.getLengthMeta(
+      query,
+      perPage,
+      count
+    );
     return {
       [dataKey]: result,
       pagination: {
@@ -18,17 +23,23 @@ export class KnexPagination {
     };
   }
 
-  private static async getLengthMeta(query, perPage) {
-    const count = await query
-      .clone()
-      .clear('select')
-      .clear('order')
-      .clear('offset')
-      .clear('limit')
-      .count('* as total')
-      .first();
-    // Postgres returns a string for count, so we parse it
-    const total = parseInt(count.total);
+  private static async getLengthMeta(
+    query: Knex.QueryBuilder<any, any>,
+    perPage: number,
+    total: number
+  ) {
+    if (total < 0) {
+      const count = await query
+        .clone()
+        .clear('select')
+        .clear('order')
+        .clear('offset')
+        .clear('limit')
+        .count({ total: '*' })
+        .first();
+      // Postgres returns a string for count, so we parse it
+      total = parseInt(count.total);
+    }
     const totalPages = Math.ceil(total / perPage);
     return {
       first_page: 1,

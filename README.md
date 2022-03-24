@@ -16,8 +16,6 @@
 <img alt="npm" src="https://img.shields.io/npm/dt/@mithleshjs/knex-nest">
 </p>
 
-
-
 ## Table of Contents
 
 - [Table of Contents](#table-of-contents)
@@ -270,7 +268,7 @@ export class AppService {
 
 ## Pagination
 
-The pagination functionality has been rewritten as a separate utility as Knex plugin API was not stable. Pagination utility supports both `offset` and `cursor` based pagination.
+The pagination functionality has been rewritten as a separate utility as Knex plugin API was not stable. Pagination utility supports both `offset` and `cursor` based pagination. You can learn how it was designed from <a href="https://mithle.sh/the-pagination-dilemma-offset-vs-cursor-part-1/" target="blank">here.</a>
 
 - ### Offset Pagination
 
@@ -288,6 +286,7 @@ The pagination functionality has been rewritten as a separate utility as Knex pl
   - (required) `query:` knex query builder instance
   - (required) `perPage:` no of records per page
   - (required) `goToPage:` the page you want to fetch
+  - (optional) `count:` sets the row count manually
   - (optional) `dataKey:` sets the name of the data key
   </br>
 
@@ -299,6 +298,8 @@ The pagination functionality has been rewritten as a separate utility as Knex pl
         goToPage: 1,
       });
   ```
+
+  **Note:** This function runs `count query` on every request to calculate total number of pages which can be very expensive. So it is advisable that you manually keep a row count and pass that value in `count` parameter to avoid that pitfall.
 
 - ### Cursor Pagination
 

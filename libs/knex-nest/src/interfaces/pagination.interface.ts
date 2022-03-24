@@ -4,6 +4,7 @@ export interface IOffsetPaginateParams {
   query: Knex.QueryBuilder;
   perPage: number;
   goToPage: number;
+  count?: number;
   dataKey?: string;
 }
 
