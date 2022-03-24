@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.1.0 (25/Mar/2022)
+
+### Added
+
+- `count` option in `IOffsetPaginateParams` to manually pass row count
+
 ## v2.0.0 (10/Mar/2022)
 
 `Breaking Changes`
