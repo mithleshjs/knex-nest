@@ -8,18 +8,27 @@
 </p>
 
 <p align="center">
-  Pagination included <a href="https://knexjs.org/" target="blank">Knex</a> module for <a href="https://knexjs.org/" target="blank">Nest</a>
+  Pagination included <a href="https://knexjs.org/" target="blank">Knex</a> module for <a href="https://nestjs.com/" target="blank">Nest</a>
 </p>
 
 <p align="center">
   <a href="https://nx.dev/" target="blank"><img src="https://img.shields.io/badge/built%20with-Nx-orange?style=for-the-badge" alt="Nrwl Nx" /></a>
 </p>
 
+<p align="center">
+<img alt="CodeFactor Grade" src="https://img.shields.io/codefactor/grade/github/mithleshjs/knex-nest?logo=codefactor">
+<img alt="npm" src="https://img.shields.io/npm/v/@mithleshjs/knex-nest?color=blue&label=latest&logo=npm">
+<img alt="npm" src="https://img.shields.io/npm/dt/@mithleshjs/knex-nest">
+</p>
+
 ## Table of Contents
 
-- [Install](#installation)
+- [Table of Contents](#table-of-contents)
+- [Installation](#installation)
 - [Usage](#usage)
 - [Configuration](#configuration)
+- [Multiple Databases](#multiple-databases)
+- [Pagination](#pagination)
 - [Documentation](#documentation)
 - [Acknowledgement](#acknowledgement)
 - [License](#license)
@@ -27,18 +36,20 @@
 ## Installation
 
 ```bash
-$ npm install @mithleshjs/knex-nest knex
+npm install @mithleshjs/knex-nest knex
 ```
+
 Then install one of the following database drivers according to your database type
 
 ```bash
-$ npm install pg
-$ npm install sqlite3
-$ npm install mysql
-$ npm install mysql2
-$ npm install oracledb
-$ npm install tedious
+npm install pg
+npm install sqlite3
+npm install mysql
+npm install mysql2
+npm install oracledb
+npm install tedious
 ```
+
 ## Usage
 
 Import the KnexModule module and pass an `options` object to initialize it. You can pass `options` object using the usual methods for [custom providers](https://docs.nestjs.com/fundamentals/custom-providers) as shown below:
@@ -53,7 +64,7 @@ import { KnexModule } from '@mithleshjs/knex-nest';
 
 @Module({
   imports: [
-    KnexModule.registerAsync({
+    KnexModule.register({
       config: {
         client: 'mysql',
         connection: {
@@ -61,10 +72,9 @@ import { KnexModule } from '@mithleshjs/knex-nest';
           port: 3306,
           user: 'your_database_user',
           password: 'your_database_password',
-          database: 'myapp_test',
+          database: 'your_database',
         },
       },
-      enablePaginator: true,
     }),
   ],
   controllers: [AppController],
@@ -92,10 +102,9 @@ import { KnexModule } from '@mithleshjs/knex-nest';
             port: 3306,
             user: 'your_database_user',
             password: 'your_database_password',
-            database: 'myapp_test',
+            database: 'your_database',
           },
         },
-        enablePaginator: true,
       }),
     }),
   ],
@@ -137,10 +146,9 @@ export class DbConfigService {
           port: 3306,
           user: 'your_database_user',
           password: 'your_database_password',
-          database: 'myapp_test',
+          database: 'your_database',
         },
       },
-      enablePaginator: true,
     };
   };
 }
@@ -179,9 +187,7 @@ export class AppService {
   constructor(@InjectKnex() readonly knex: Knex) {}
 
   getUsers() {
-    return this.knex('users')
-      .select('id', 'name')
-      .paginate({ perPage: 10, currentPage: 1 });
+    return this.knex('users').select('id', 'name')
   }
 }
 ```
@@ -193,29 +199,160 @@ A KnexModule `option` object has the following interface:
 ```typescript
 export interface IKnexModuleOptions {
   config: Knex.Config;
-  enablePaginator?: boolean;
+  configTag?: string;
 }
 ```
 
 - `config:` configuration object for Knex as described [here](https://knexjs.org/#Installation-client)
 
-- (optional) `enablePaginator:` set to `true` to use pagination.
+- (optional) `configTag:` identifier tag for Knex config, required if you wish to use multiple database connections
 
-`Pagination` parameter has the following interface: 
+## Multiple Databases
+
+You can connect as many databases as you want, you just need to pass a unique `configTag` for each instance.
 
 ```typescript
-export interface IPaginateParams {
-  perPage: number;
-  currentPage: number;
-  isLengthAware?: boolean;
-  dataKey?: string;
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { KnexModule } from '@mithleshjs/knex-nest';
+
+@Module({
+  imports: [
+    KnexModule.register({
+      config: {
+        client: 'mysql',
+        connection: {
+          host: '127.0.0.1',
+          port: 3306,
+          user: 'your_database_user',
+          password: 'your_database_password',
+          database: 'your_database',
+        },
+      },
+      configTag: 'mysql8',
+    }),
+    KnexModule.register({
+      config: {
+        client: 'pg',
+        connection: process.env.PG_CONNECTION_STRING,
+        searchPath: ['knex', 'public'],
+      },
+      configTag: 'postgres12',
+    }),
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
+```
+
+Pass the `configTag` value in `InjectKnex()` decorator to inject the specific Knex connection. See the example below.
+
+```typescript
+import { Injectable } from '@nestjs/common';
+import { InjectKnex } from '@mithleshjs/knex-nest';
+import { Knex } from 'knex';
+
+@Injectable()
+export class AppService {
+  constructor(
+    @InjectKnex('postgres12') readonly knexPg: Knex,
+    @InjectKnex('mysql8') readonly knexSQL: Knex
+  ) {}
+
+  getUsers() {
+    return this.knexPg('users').select('id', 'name')
+  }
+
+  getAuthors() {
+    return this.knexSQL('authors').select('id', 'name')
+  }
 }
 ```
 
-- (required) `perPage:` no of records per page
-- (required) `currentPage:` current page number
-- (optional) `isLengthAware:` set to _**true**_ to show `total` and `lastPage`
-- (optional) `dataKey:` sets the name of the data key
+## Pagination
+
+The pagination functionality has been rewritten as a separate utility as Knex plugin API was not stable. Pagination utility supports both `offset` and `cursor` based pagination. You can learn how it was designed from <a href="https://mithle.sh/the-pagination-dilemma-offset-vs-cursor-part-1/" target="blank">here.</a>
+
+- ### Offset Pagination
+
+  `KnexPagination.offsetPaginate` parameters has the following interface: </br></br>
+
+  ```typescript
+    export interface IOffsetPaginateParams {
+      query: Knex.QueryBuilder;
+      perPage: number;
+      goToPage: number;
+      dataKey?: string;
+    }
+  ```
+
+  - (required) `query:` knex query builder instance
+  - (required) `perPage:` no of records per page
+  - (required) `goToPage:` the page you want to fetch
+  - (optional) `count:` sets the row count manually
+  - (optional) `dataKey:` sets the name of the data key
+  </br>
+
+  ```typescript
+    const query = this.knexPg('artist').select('id', 'name');
+    const result = await KnexPagination.offsetPaginate({
+        query: query,
+        perPage: 10,
+        goToPage: 1,
+      });
+  ```
+
+  **Note:** This function runs `count query` on every request to calculate total number of pages which can be very expensive. So it is advisable that you manually keep a row count and pass that value in `count` parameter to avoid that pitfall.
+
+- ### Cursor Pagination
+
+  `KnexPagination.cursorPaginate` parameters has the following interface: </br></br>
+
+  ```typescript
+    export interface ICursorPaginateParams {
+      query: Knex.QueryBuilder;
+      cursor: ICursor;
+      perPage: number;
+      dataKey?: string;
+    }
+  ```
+
+  - (required) `query:` knex query builder instance
+  - (required) `cursor:` an object of type `ICursor`
+  - (required) `perPage:` no of records per page
+  - (optional) `dataKey:` sets the name of the data key
+  </br>
+
+  ```typescript
+   export interface ICursor {
+      key: string;
+      value?: string | number;
+      order: 'asc' | 'desc';
+      direction: 'next' | 'prev';
+    }
+  ```
+
+  - (required) `key:` name of the column that will be used as `cursor`, it should be **sequential** and **unique**
+  - (optional) `value:` the value of the cursor for getting `next/prev` page, omit or pass `null` to get the `first page/last page` depending on `direction`
+  - (required) `order:` pass `asc` or `desc` to specify the sorting order of the cursor
+  - (required) `direction:` pass `next` to get **next page** or `prev` to get the **prev page**
+  </br>
+
+  ```typescript
+    const artistsQuery = this.knexPg('artist').select('id', 'name');
+    const result = await KnexPagination.cursorPaginate({
+      query: artistsQuery,
+      cursor: {
+        key: 'id',
+        order: 'desc',
+        value: null,
+        direction: 'next',
+      },
+      perPage: 10,
+    });
+  ```
 
 ## Documentation
 
@@ -231,3 +368,4 @@ export interface IPaginateParams {
 ## License
 
 Knex-Nest is [MIT licensed](LICENSE).
+
