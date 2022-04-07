@@ -277,7 +277,7 @@ The pagination functionality has been rewritten as a separate utility as Knex pl
 
 - ### Offset Pagination
 
-  `KnexPagination.offsetPaginate` parameters has the following interface: </br></br>
+  `KnexPagination.offsetPaginate` parameters has the following interface:
 
   ```typescript
     export interface IOffsetPaginateParams {
@@ -293,7 +293,8 @@ The pagination functionality has been rewritten as a separate utility as Knex pl
   - (required) `goToPage:` the page you want to fetch
   - (optional) `count:` sets the row count manually
   - (optional) `dataKey:` sets the name of the data key
-  </br>
+  
+  <p></p>
 
   ```typescript
     const query = this.knexPg('artist').select('id', 'name');
@@ -308,7 +309,7 @@ The pagination functionality has been rewritten as a separate utility as Knex pl
 
 - ### Cursor Pagination
 
-  `KnexPagination.cursorPaginate` parameters has the following interface: </br></br>
+  `KnexPagination.cursorPaginate` parameters has the following interface:
 
   ```typescript
     export interface ICursorPaginateParams {
@@ -323,22 +324,24 @@ The pagination functionality has been rewritten as a separate utility as Knex pl
   - (required) `cursor:` an object of type `ICursor`
   - (required) `perPage:` no of records per page
   - (optional) `dataKey:` sets the name of the data key
-  </br>
+  
+  <p></p>
 
   ```typescript
-   export interface ICursor {
-      key: string;
-      value?: string | number;
-      order: 'asc' | 'desc';
-      direction: 'next' | 'prev';
-    }
+    export interface ICursor {
+        key: string;
+        value?: string | number;
+        order: 'asc' | 'desc';
+        direction: 'next' | 'prev';
+      }
   ```
 
   - (required) `key:` name of the column that will be used as `cursor`, it should be **sequential** and **unique**
   - (optional) `value:` the value of the cursor for getting `next/prev` page, omit or pass `null` to get the `first page/last page` depending on `direction`
   - (required) `order:` pass `asc` or `desc` to specify the sorting order of the cursor
   - (required) `direction:` pass `next` to get **next page** or `prev` to get the **prev page**
-  </br>
+
+  <p></p>
 
   ```typescript
     const artistsQuery = this.knexPg('artist').select('id', 'name');
