@@ -1,5 +1,15 @@
 # Changelog
 
+## v2.2.0 (26/Sep/2022)
+
+### Added
+
+- `keyAlias` option in `ICursor` to support column alias
+
+### Fixed
+
+- ([#1](https://github.com/mithleshjs/knex-nest/issues/1)) cursor pagination not working when column alias is used
+
 ## v2.1.0 (25/Mar/2022)
 
 ### Added
@@ -25,8 +35,6 @@
 - `enablePaginator` option from KnexModule `option`
 - pagination plugin by [felixmosh](https://github.com/felixmosh/knex-paginate)
 
----
-  
 ## v1.0.2 (20/Oct/2021)
 
 ### Fixed

@@ -56,10 +56,11 @@ export class KnexPagination {
       hasPrevPage: false,
       prev_cursor: null,
     };
+    const cursorColumn = cursor?.keyAlias || cursor.key;
     const whereOperator = this.getWhereOperator(cursor.order, cursor.direction);
     // if cursor is null, we need to get the first/last page
     if (cursor.value) {
-      query.where(cursor.key, whereOperator, cursor.value);
+      query.where(cursorColumn, whereOperator, cursor.value);
     }
     // if direction is prev, we need to reverse the order
     const order =
@@ -69,7 +70,7 @@ export class KnexPagination {
         ? 'desc'
         : 'asc';
     // add +1 to the limit to determine if there is a next/prev page
-    const result = await query.orderBy(cursor.key, order).limit(perPage + 1);
+    const result = await query.orderBy(cursorColumn, order).limit(perPage + 1);
     // if direction is prev, we need to reverse the result
     if (order !== cursor.order) {
       result.reverse();

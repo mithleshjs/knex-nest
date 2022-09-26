@@ -182,7 +182,7 @@ export class AppService {
   constructor(@InjectKnex() readonly knex: Knex) {}
 
   getUsers() {
-    return this.knex('users').select('id', 'name')
+    return this.knex('users').select('id', 'name');
   }
 }
 ```
@@ -257,11 +257,11 @@ export class AppService {
   ) {}
 
   getUsers() {
-    return this.knexPg('users').select('id', 'name')
+    return this.knexPg('users').select('id', 'name');
   }
 
   getAuthors() {
-    return this.knexSQL('authors').select('id', 'name')
+    return this.knexSQL('authors').select('id', 'name');
   }
 }
 ```
@@ -275,12 +275,13 @@ The pagination functionality has been rewritten as a separate utility as Knex pl
   `KnexPagination.offsetPaginate` parameters has the following interface: </br></br>
 
   ```typescript
-    export interface IOffsetPaginateParams {
-      query: Knex.QueryBuilder;
-      perPage: number;
-      goToPage: number;
-      dataKey?: string;
-    }
+  export interface IOffsetPaginateParams {
+    query: Knex.QueryBuilder;
+    perPage: number;
+    goToPage: number;
+    count?: number;
+    dataKey?: string;
+  }
   ```
 
   - (required) `query:` knex query builder instance
@@ -288,15 +289,15 @@ The pagination functionality has been rewritten as a separate utility as Knex pl
   - (required) `goToPage:` the page you want to fetch
   - (optional) `count:` sets the row count manually
   - (optional) `dataKey:` sets the name of the data key
-  </br>
+    </br>
 
   ```typescript
-    const query = this.knexPg('artist').select('id', 'name');
-    const result = await KnexPagination.offsetPaginate({
-        query: query,
-        perPage: 10,
-        goToPage: 1,
-      });
+  const query = this.knexPg('artist').select('id', 'name');
+  const result = await KnexPagination.offsetPaginate({
+    query: query,
+    perPage: 10,
+    goToPage: 1,
+  });
   ```
 
   **Note:** This function runs `count query` on every request to calculate total number of pages which can be very expensive. So it is advisable that you manually keep a row count and pass that value in `count` parameter to avoid that pitfall.
@@ -306,47 +307,49 @@ The pagination functionality has been rewritten as a separate utility as Knex pl
   `KnexPagination.cursorPaginate` parameters has the following interface: </br></br>
 
   ```typescript
-    export interface ICursorPaginateParams {
-      query: Knex.QueryBuilder;
-      cursor: ICursor;
-      perPage: number;
-      dataKey?: string;
-    }
+  export interface ICursorPaginateParams {
+    query: Knex.QueryBuilder;
+    cursor: ICursor;
+    perPage: number;
+    dataKey?: string;
+  }
   ```
 
   - (required) `query:` knex query builder instance
   - (required) `cursor:` an object of type `ICursor`
   - (required) `perPage:` no of records per page
   - (optional) `dataKey:` sets the name of the data key
-  </br>
+    </br>
 
   ```typescript
-   export interface ICursor {
-      key: string;
-      value?: string | number;
-      order: 'asc' | 'desc';
-      direction: 'next' | 'prev';
-    }
+  export interface ICursor {
+    key: string;
+    keyAlias?: string;
+    value?: string | number;
+    order: 'asc' | 'desc';
+    direction: 'next' | 'prev';
+  }
   ```
 
   - (required) `key:` name of the column that will be used as `cursor`, it should be **sequential** and **unique**
+  - (optional) `keyAlias:` specify the column alias of the cursor key
   - (optional) `value:` the value of the cursor for getting `next/prev` page, omit or pass `null` to get the `first page/last page` depending on `direction`
   - (required) `order:` pass `asc` or `desc` to specify the sorting order of the cursor
   - (required) `direction:` pass `next` to get **next page** or `prev` to get the **prev page**
-  </br>
+    </br>
 
   ```typescript
-    const artistsQuery = this.knexPg('artist').select('id', 'name');
-    const result = await KnexPagination.cursorPaginate({
-      query: artistsQuery,
-      cursor: {
-        key: 'id',
-        order: 'desc',
-        value: null,
-        direction: 'next',
-      },
-      perPage: 10,
-    });
+  const artistsQuery = this.knexPg('artist').select('id', 'name');
+  const result = await KnexPagination.cursorPaginate({
+    query: artistsQuery,
+    cursor: {
+      key: 'id',
+      order: 'desc',
+      value: null,
+      direction: 'next',
+    },
+    perPage: 10,
+  });
   ```
 
 ## Documentation

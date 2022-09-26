@@ -17,6 +17,7 @@ export interface ICursorPaginateParams {
 
 export interface ICursor {
   key: string;
+  keyAlias?: string;
   value?: string | number;
   order: 'asc' | 'desc';
   direction: 'next' | 'prev';
