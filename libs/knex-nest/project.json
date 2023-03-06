@@ -1,5 +1,6 @@
 {
-  "root": "libs/knex-nest",
+  "name": "knex-nest",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/knex-nest/src",
   "projectType": "library",
   "targets": {
@@ -12,9 +13,9 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/knex-nest"],
+      "outputs": ["{workspaceRoot}/coverage/libs/knex-nest"],
       "options": {
-        "jestConfig": "libs/knex-nest/jest.config.js",
+        "jestConfig": "libs/knex-nest/jest.config.ts",
         "passWithNoTests": true
       }
     },
@@ -30,8 +31,16 @@
         "packageJson": "libs/knex-nest/package.json",
         "main": "libs/knex-nest/src/index.ts",
         "assets": [
-          { "glob": "README.md", "input": "./", "output": "./" },
-          { "glob": "LICENSE.md", "input": "./", "output": "./" }
+          {
+            "glob": "README.md",
+            "input": "./",
+            "output": "./"
+          },
+          {
+            "glob": "LICENSE.md",
+            "input": "./",
+            "output": "./"
+          }
         ]
       }
     }
