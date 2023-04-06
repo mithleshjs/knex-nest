@@ -35,9 +35,9 @@
     "nx": "15.8.5"
   },
   "dependencies": {
-    "@nestjs/common": "9.3.9",
-    "@nestjs/core": "9.3.9",
-    "@nestjs/platform-express": "9.3.9",
+    "@nestjs/common": "9.3.10",
+    "@nestjs/core": "9.3.10",
+    "@nestjs/platform-express": "9.3.10",
     "chalk": "4.1.2",
     "knex": "^2.4.0",
     "mysql2": "^2.3.0",
