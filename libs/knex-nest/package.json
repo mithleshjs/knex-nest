@@ -24,7 +24,7 @@
     "cursor"
   ],
   "peerDependencies": {
-    "@nestjs/common": ">=7.0.0",
-    "knex": ">=0.95.11"
+    "@nestjs/common": ">=9.0.5",
+    "knex": ">=2.4.0"
   }
 }

@@ -3,24 +3,21 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/knex-nest/src",
   "projectType": "library",
+  "tags": [],
   "targets": {
     "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["libs/knex-nest/**/*.ts"]
-      }
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
     },
     "test": {
-      "executor": "@nrwl/jest:jest",
+      "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/libs/knex-nest"],
       "options": {
-        "jestConfig": "libs/knex-nest/jest.config.ts",
-        "passWithNoTests": true
+        "jestConfig": "libs/knex-nest/jest.config.ts"
       }
     },
     "build": {
-      "executor": "@nrwl/js:tsc",
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "optimization": true,
       "extractLicenses": true,
@@ -44,6 +41,5 @@
         ]
       }
     }
-  },
-  "tags": []
+  }
 }
